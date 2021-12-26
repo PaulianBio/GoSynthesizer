@@ -8,19 +8,28 @@ import (
 )
 
 const (
-	METHOD_GET       = "GET"
-	METHOD_POST      = "POST"
-	SCHEME_HTTP      = "HTTP"
-	SCHEME_HTTPS     = "HTTPS"
-	SCHEME_WEBSOCKET = "WEBSOCKET"
-	PROTO_HTTP_1_1   = "HTTP/1.1"
-	PROTO_HTTP_2     = "HTTP/2"
+	METHOD_GET       string = "GET"
+	METHOD_POST      string = "POST"
+	SCHEME_HTTP      string = "HTTP"
+	SCHEME_HTTPS     string = "HTTPS"
+	SCHEME_WEBSOCKET string = "WEBSOCKET"
+	PROTO_HTTP_1_1   string = "HTTP/1.1"
+	PROTO_HTTP_2     string = "HTTP/2"
 )
 
-var ERROR_INVALID_SCHEME error = errors.New("invalid scheme")
-var ERROR_INVALID_PATH error = errors.New("invalid path")
-var ERROR_INVALID_HOST error = errors.New("invalid host")
-var ERROR_INVALID_METHOD error = errors.New("invalid method")
+const (
+	KAKAOI_VOICE_STYLE_WOMAN_READ_CALM     string = "WOMAN_READ_CALM"
+	KAKAOI_VOICE_STYLE_WOMAN_DIALOG_BRIGHT string = "WOMAN_DIALOG_BRIGHT"
+	KAKAOI_VOICE_STYLE_MAN_READ_CALM       string = "MAN_READ_CALM"
+	KAKAOI_VOICE_STYLE_MAN_DIALOG_BRIGHT   string = "MAN_DIALOG_BRIGHT"
+)
+
+var (
+	ErrInvalidScheme error = errors.New("invalid scheme")
+	ErrInvalidPath   error = errors.New("invalid path")
+	ErrInvalidHost   error = errors.New("invalid host")
+	ErrInvalidMethod error = errors.New("invalid method")
+)
 
 type RequestApi struct {
 	Method string
@@ -29,20 +38,16 @@ type RequestApi struct {
 	Path   string
 }
 
-type ServerTTSRequest interface {
-	NewHttpRequest(message string) (*http.Request, error)
-}
-
-func (api *RequestApi) NewHttpRequest() (*http.Request, error) {
+func (api *RequestApi) GetHttpRequest() (*http.Request, error) {
 	var httpRequest *http.Request
 	var path string
 	if path = api.Method; len(path) == 0 {
-		return httpRequest, ERROR_INVALID_PATH
+		return httpRequest, ErrInvalidPath
 	}
 
 	var host string
 	if host = api.Host; len(host) == 0 {
-		return httpRequest, ERROR_INVALID_HOST
+		return httpRequest, ErrInvalidHost
 	}
 
 	var scheme string
@@ -54,7 +59,7 @@ func (api *RequestApi) NewHttpRequest() (*http.Request, error) {
 	case SCHEME_WEBSOCKET:
 		scheme = strings.ToLower(SCHEME_WEBSOCKET)
 	default:
-		return httpRequest, ERROR_INVALID_SCHEME
+		return httpRequest, ErrInvalidScheme
 	}
 
 	var requestMethod string
@@ -64,7 +69,7 @@ func (api *RequestApi) NewHttpRequest() (*http.Request, error) {
 	case METHOD_POST:
 		requestMethod = METHOD_POST
 	default:
-		return httpRequest, ERROR_INVALID_METHOD
+		return httpRequest, ErrInvalidMethod
 	}
 
 	httpRequest = &http.Request{}
